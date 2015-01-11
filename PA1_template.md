@@ -3,7 +3,8 @@
 
 ##Loading and preprocessing the data
 
-```{r}
+
+```r
 setwd("~/Rwork")
 data <- read.csv("activity.csv", header = TRUE)
 ```
@@ -15,22 +16,36 @@ data <- read.csv("activity.csv", header = TRUE)
 
     
 
-```{r totalstep}
+
+```r
 daysum <- tapply(data$steps, data$date, sum, na.rm = TRUE)
 daysum <- as.vector(daysum)
 hist(daysum, main = "Hist Graph for total number of steps each day", xlab = "total steps each day")
 ```
 
+![plot of chunk totalstep](figure/totalstep-1.png) 
+
 - Calculate and report the mean and median total number of steps taken per day
     
-```{r mean_and_median}
+
+```r
 # calculate and report the mean 
 daymean <- mean(daysum)
 daymean
+```
 
+```
+## [1] 9354.23
+```
+
+```r
 # calculate and report the median
 daymedian <- median(daysum)
 daymedian
+```
+
+```
+## [1] 10395
 ```
 
 ##What is the average daily activity pattern?
@@ -38,7 +53,8 @@ daymedian
     taken, averaged across all days (y-axis)
  
 
-```{r plot1}
+
+```r
 library(ggplot2)
 ave_interval <- as.data.frame(tapply(data$steps, as.factor(data$interval), mean, na.rm = TRUE))
 ave_interval$interval = as.numeric(rownames(ave_interval))
@@ -47,27 +63,44 @@ ave_interval <- ave_interval[, c(-1)]
 
 plot1 <- ggplot(ave_interval, aes(interval, avesteps, group = 1))
 plot1 + geom_line()
+```
 
+![plot of chunk plot1](figure/plot1-1.png) 
+
+```r
 #alternative plot code
 plot(ave_interval$interval, ave_interval$avesteps, type = "l",
     xlab = "Intervals",
     ylab = "Averaged Steps for all day")
 ```
 
+![plot of chunk plot1](figure/plot1-2.png) 
+
  -  Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
  
  
-```{r maxAveInterval}
+
+```r
 #the interval with max number of steps on average all days
 ave_interval[ave_interval$avesteps ==max(ave_interval$avesteps),]
+```
+
+```
+##     interval avesteps
+## 835      835 206.1698
 ```
 
 ##Imputing missing values
 -   Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r missvalue}
+
+```r
 #calculate the number of missing values
 sum(is.na(data$steps))
+```
+
+```
+## [1] 2304
 ```
              
 -   Devise a strategy for filling in all of the missing values in the dataset. 
@@ -75,7 +108,8 @@ sum(is.na(data$steps))
     day, or the mean for that 5-minute interval, etc.   
 -   Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r fillupmissing}
+
+```r
 # set strategy: considering some of the days missed all data, use mean of interval to set up missing value.
 newdata = data
 
@@ -95,27 +129,42 @@ for (i in 1:length(newdata$steps)){
     total number of steps taken per day. Do these values differ from the estimates from the first part of 
     the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
     
-```{r newtotalstep}
+
+```r
 daysumnew <- tapply(newdata$steps, data$date, sum)
 daysumnew <- as.vector(daysumnew)
 hist(daysumnew, main = "Hist Graph for total number of steps each day (newdata)", xlab = "total steps each day")
 ```
 
+![plot of chunk newtotalstep](figure/newtotalstep-1.png) 
+
 - Calculate and report the mean and median total number of steps taken per day
     
-```{r mean_and_median new}
+
+```r
 # calculate and report the mean 
 daymeannew <- mean(daysumnew)
 daymeannew
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 # calculate and report the median
 daymediannew <- median(daysumnew)
 daymediannew
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 ####################################################################
 # Yes.after inputing the missing value, the mean and median differs from first estimates, 
 # median is more closer to mean value. and the hist look more like a normal distribution. 
-
 ```
 
 ##Are there differences in activity patterns between weekdays and weekends?
@@ -124,7 +173,8 @@ daymediannew
 
 -   Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
-```{r weekday}
+
+```r
 library(lubridate)
 
 weekday <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
@@ -158,7 +208,8 @@ newdata$week <- datelevel$weekday[match(newdata$date, datelevel[,1])]
 
 -   Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r plot2}
+
+```r
 ## calculate the averaged steps across workday and weekend
 avgint <- tapply(newdata$steps, list(newdata$interval, newdata$week), mean)
 
@@ -174,5 +225,6 @@ avgintmelt <- melt(avgint, measure.vars = c("weekday", "weekend"))
 plot2 <- ggplot(avgintmelt, aes(interval, value, group = 1))
 plot2 + geom_line() + facet_grid(variable ~ .) +
     ylab("Number of steps")
+```
 
-
+![plot of chunk plot2](figure/plot2-1.png) 
